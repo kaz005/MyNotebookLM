@@ -1,0 +1,10 @@
+- id: TC_HISTORY_SAVE
+  tags: [unit, storage, positive]
+  priority: medium
+  scenario: 要約と音声ファイルが履歴として30日間保存
+  given:
+    - "要約・音声化を実行したユーザー"
+  when:
+    - "履歴一覧を取得"
+  then:
+    - "履歴一覧に30日間保存されている" 

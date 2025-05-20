@@ -1,0 +1,13 @@
+- id: TC_PERFORMANCE
+  tags: [perf, latency]
+  priority: high
+  scenario: 5秒以内に要約と音声ファイルが返る
+  load_profile:
+    concurrency: 1
+    duration_sec: 60
+  given:
+    - "200文字の日本語テキスト (fixtures/short_text.txt)"
+  when:
+    - "POST /summarize (200 char) & /tts (mp3)"
+  then:
+    - "p95_latency_ms < 5000" 

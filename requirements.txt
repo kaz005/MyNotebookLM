@@ -1,0 +1,9 @@
+google-generativeai
+requests
+gtts
+PyYAML
+beautifulsoup4
+readability-lxml
+pillow
+pytesseract
+streamlit 

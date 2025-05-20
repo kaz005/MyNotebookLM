@@ -1,0 +1,12 @@
+- id: TC_EXPORT_FORMATS
+  tags: [unit, export, positive, parametrize]
+  priority: medium
+  scenario: 要約結果を各フォーマットでダウンロード
+  given:
+    - "要約済みテキスト (fixtures/summary.txt)"
+  when:
+    - "GET /export?format={fmt}"
+  then:
+    - "{fmt}形式のファイルがダウンロードできる"
+  parametrize:
+    fmt: [txt, pdf, mp3, wav] 

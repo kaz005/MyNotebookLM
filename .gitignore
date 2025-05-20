@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+build/
+dist/
+*.egg-info/
+
+# VSCode
+.vscode/
+
+# Mac
+.DS_Store
+
+# テスト用サンプルデータ
+fixtures/*.jpg
+fixtures/*.png
+fixtures/*.txt
+fixtures/*.html
+
+# 機密情報
+config.yaml
+.env
+
+# その他
+*.log 

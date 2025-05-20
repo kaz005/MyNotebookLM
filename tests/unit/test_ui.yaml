@@ -1,0 +1,23 @@
+- id: TC_WEB_UI_SUMMARY
+  tags: [unit, ui, positive]
+  priority: high
+  scenario: Web UIで要約・音声化
+  given:
+    - "Web UIが起動している"
+    - "有効な入力（URL/画像/テキスト）"
+  when:
+    - "要約・音声化ボタンをクリック"
+  then:
+    - "要約と音声再生UIが表示される"
+
+- id: TC_CLI_SUMMARY
+  tags: [unit, ui, positive]
+  priority: high
+  scenario: CLIでファイル指定・パラメータ指定で要約・音声化
+  given:
+    - "aisumコマンドがインストールされている"
+    - "有効なテキストファイル (fixtures/summary.txt)"
+  when:
+    - "aisum --file fixtures/summary.txt --length 100 を実行"
+  then:
+    - "終了コード0で要約・音声ファイルが生成される" 

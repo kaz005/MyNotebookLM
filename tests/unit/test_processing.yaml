@@ -1,0 +1,77 @@
+- id: TC_SUMMARIZATION_LENGTH
+  tags: [unit, processing, positive, parametrize]
+  priority: high
+  scenario: 要約長プリセットごとに指定通りの長さで要約
+  given:
+    - "2000文字の日本語テキスト (fixtures/long_text.txt)"
+  when:
+    - "POST /summarize?text=fixtures/long_text.txt&length={length}"
+  then:
+    - "abs(len(body.summary) - {length}) < 0.1 * {length}"
+  parametrize:
+    length: [50, 100, 200, 400]
+
+- id: TC_SUMMARIZATION_DETAIL_LEVEL
+  tags: [unit, processing, positive, parametrize]
+  priority: medium
+  scenario: detail_levelごとに要約内容が変化
+  given:
+    - "2000文字の日本語テキスト (fixtures/long_text.txt)"
+  when:
+    - "POST /summarize?text=fixtures/long_text.txt&detail_level={level}"
+  then:
+    - "要約の詳細度が {level} に応じて変化する"
+  parametrize:
+    level: [gist, standard, detailed]
+
+- id: TC_SPEECH_SYNTHESIS_PARAMS
+  tags: [unit, processing, positive, parametrize]
+  priority: medium
+  scenario: speed/pitch/voice_typeごとに音声合成結果が変化
+  given:
+    - "要約済みテキスト (fixtures/summary.txt)"
+  when:
+    - "POST /tts?text=fixtures/summary.txt&speed={speed}&pitch={pitch}&voice_type={voice_type}"
+  then:
+    - "音声の速度・高さ・声種が {speed}, {pitch}, {voice_type} に応じて変化する"
+  parametrize:
+    speed: [0.8, 1.0, 1.2]
+    pitch: [-2, 0, 2]
+    voice_type: [female, male, child]
+
+- id: TC_SPEECH_SYNTHESIS_FORMAT
+  tags: [unit, processing, positive, parametrize]
+  priority: medium
+  scenario: mp3/wav形式で音声ファイルが生成
+  given:
+    - "要約済みテキスト (fixtures/summary.txt)"
+  when:
+    - "POST /tts?text=fixtures/summary.txt&format={fmt}"
+  then:
+    - "{fmt}形式の音声ファイルが生成される"
+  parametrize:
+    fmt: [mp3, wav]
+
+- id: TC_OCR_CLEANSHOT
+  tags: [unit, processing, positive]
+  priority: high
+  scenario: CleanShot APIで画像から日本語テキスト抽出
+  given:
+    - "日本語テキストを含む画像 (fixtures/sample_image.jpg)"
+  when:
+    - "POST /ocr/cleanshot?file=fixtures/sample_image.jpg"
+  then:
+    - status_code: 200
+    - "日本語テキストが正確に抽出される"
+
+- id: TC_OCR_FAIL
+  tags: [unit, processing, negative]
+  priority: medium
+  scenario: OCR失敗時にエラー
+  given:
+    - "文字が含まれない画像 (fixtures/blank_image.png)"
+  when:
+    - "POST /ocr?file=fixtures/blank_image.png"
+  then:
+    - status_code: 400
+    - error_code: ERR_OCR_FAIL 

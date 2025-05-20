@@ -1,0 +1,11 @@
+- id: TC_OCR_CLEANSHOT_INTEGRATION
+  tags: [integration, ocr, cleanshot, positive]
+  priority: high
+  scenario: CleanShot APIで画像から日本語テキスト抽出（統合）
+  given:
+    - "日本語テキストを含む画像 (fixtures/sample_image.jpg)"
+  when:
+    - "POST /ocr/cleanshot?file=fixtures/sample_image.jpg"
+  then:
+    - status_code: 200
+    - "日本語テキストが正確に抽出される" 

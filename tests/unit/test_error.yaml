@@ -1,0 +1,35 @@
+- id: TC_ERR_INVALID_URL
+  tags: [unit, error, negative]
+  priority: high
+  scenario: 無効なURLでERR_INVALID_URL
+  given:
+    - "httpスキームや不正なURL"
+  when:
+    - "GET /extract?url=http://invalid-url"
+  then:
+    - status_code: 400
+    - error_code: ERR_INVALID_URL
+
+- id: TC_ERR_OCR_FAIL
+  tags: [unit, error, negative]
+  priority: medium
+  scenario: OCR失敗でERR_OCR_FAIL
+  given:
+    - "文字が含まれない画像 (fixtures/blank_image.png)"
+  when:
+    - "POST /ocr?file=fixtures/blank_image.png"
+  then:
+    - status_code: 400
+    - error_code: ERR_OCR_FAIL
+
+- id: TC_ERR_TTS_TIMEOUT
+  tags: [unit, error, negative]
+  priority: medium
+  scenario: 音声合成タイムアウトでERR_TTS_TIMEOUT
+  given:
+    - "TTS APIがタイムアウトする状況"
+  when:
+    - "POST /tts?text=fixtures/summary.txt (APIタイムアウト発生)"
+  then:
+    - status_code: 504
+    - error_code: ERR_TTS_TIMEOUT 

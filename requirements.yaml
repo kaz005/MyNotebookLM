@@ -1,0 +1,85 @@
+project_name: AI要約・解説＆音声化ツール
+overview: |
+  Web記事・画像・テキストを AI で要約・解説し、日本語音声に変換するツール。
+  入力 → 要約 → 音声化までをワンストップで提供し、Web UI と CLI の両方で利用可能。
+
+functional_requirements:
+  input:
+    url:
+      description: HTTPS URL の記事を取得し、本文テキストを抽出する
+      constraints:
+        - max_length: 100000          # 文字数
+        - allowed_schemes: ["https"]
+    image:
+      description: 画像から OCR でテキストを抽出する
+      constraints:
+        - formats: ["png", "jpg", "jpeg", "webp"]
+        - max_size_mb: 10
+    text:
+      description: 直接貼り付けまたはファイルアップロードされたテキスト
+      constraints:
+        - max_length: 100000
+
+  processing:
+    summarization:
+      description: AI により日本語要約・解説を生成する
+      parameters:
+        length: [50, 100, 200, 400]       # 文字数プリセット
+        detail_level: ["gist", "standard", "detailed"]
+    speech_synthesis:
+      description: 要約結果を日本語音声に変換する
+      parameters:
+        speed: [0.8, 1.0, 1.2]            # 再生速度
+        pitch: [-2, 0, 2]                 # 半音単位
+        voice_type: ["female", "male", "child"]
+      output_format: ["mp3", "wav"]
+    ocr:
+      description: CleanShot API による OCR 処理
+      output: extracted_text
+
+  ui:
+    web_app:
+      description: ブラウザベースの SPA
+    cli:
+      description: `aisum` コマンドによる操作
+
+  storage:
+    history:
+      description: 要約と音声ファイルをユーザー毎に保存
+      retention_days: 30
+
+  export:
+    description: 要約結果をダウンロード可能
+    formats: ["txt", "pdf", "mp3", "wav"]
+
+non_functional_requirements:
+  performance:
+    latency_p95_sec: 5
+    concurrent_requests: 20
+  scalability: cloud_native
+  availability: "99.5%"
+  security:
+    encryption_in_transit: tls1.2_plus
+    personal_data_masking: true
+  accessibility:
+    aria_compliant: true
+
+error_handling:
+  - code: ERR_INVALID_URL
+    description: 無効な URL
+  - code: ERR_OCR_FAIL
+    description: OCR 抽出失敗
+  - code: ERR_TTS_TIMEOUT
+    description: 音声合成 API タイムアウト
+
+logging_and_monitoring:
+  metrics:
+    - summarization_success_rate
+    - tts_success_rate
+    - avg_processing_time_sec
+  log_level: INFO
+
+acceptance_criteria:
+  - description: 有効な URL を入力し、200 文字の要約と mp3 音声が 5 秒以内に返る
+  - description: 5 MB の JPEG 画像から OCR → 要約 → 音声生成が成功する
+  - description: CLI で `aisum --file sample.txt --length 100` が終了コード 0 で完了

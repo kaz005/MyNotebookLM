@@ -1,0 +1,12 @@
+- id: TC_WEB_UI_SUMMARY_E2E
+  tags: [e2e, ui, web, positive]
+  priority: high
+  scenario: Web UIで要約・音声化（E2E）
+  given:
+    - "Web UIが起動している"
+    - "有効な入力（URL/画像/テキスト）"
+  when:
+    - "要約・音声化ボタンをクリック"
+  then:
+    - "要約と音声再生UIが表示される"
+    - "ダウンロードボタンでmp3ファイルが取得できる" 

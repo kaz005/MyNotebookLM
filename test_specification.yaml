@@ -1,0 +1,122 @@
+test_specification:
+  input:
+    - id: TC_INPUT_URL_VALID
+      description: 有効なHTTPS URLを入力した場合、本文テキストが正しく抽出される
+      steps:
+        - "有効なニュース記事のURLを入力"
+      expected:
+        - "本文テキストが抽出され、100文字以上である"
+    - id: TC_INPUT_URL_INVALID
+      description: 無効なURLを入力した場合、ERR_INVALID_URLエラーが返る
+      steps:
+        - "httpスキームや不正なURLを入力"
+      expected:
+        - "エラーコード ERR_INVALID_URL が返る"
+    - id: TC_INPUT_IMAGE_VALID
+      description: 5MB以内のJPEG画像をアップロードした場合、OCRでテキストが抽出される
+      steps:
+        - "5MBの日本語テキストを含むJPEG画像をアップロード"
+      expected:
+        - "OCRでテキストが抽出され、100文字以上である"
+    - id: TC_INPUT_IMAGE_TOO_LARGE
+      description: 10MBを超える画像をアップロードした場合、エラーとなる
+      steps:
+        - "11MBのPNG画像をアップロード"
+      expected:
+        - "エラーが返る"
+    - id: TC_INPUT_TEXT_VALID
+      description: 100,000文字以内のテキストを入力した場合、正常に処理される
+      steps:
+        - "100,000文字のテキストを貼り付け"
+      expected:
+        - "要約処理が正常に行われる"
+
+  processing:
+    - id: TC_SUMMARIZATION_LENGTH
+      description: 要約長プリセットごとに指定通りの長さで要約される
+      steps:
+        - "各lengthパラメータ（50,100,200,400）で要約をリクエスト"
+      expected:
+        - "指定文字数±10%以内の要約が返る"
+    - id: TC_SUMMARIZATION_DETAIL_LEVEL
+      description: detail_levelごとに要約内容が変化する
+      steps:
+        - "gist/standard/detailedで同じテキストを要約"
+      expected:
+        - "要約の詳細度が変化する"
+    - id: TC_SPEECH_SYNTHESIS_PARAMS
+      description: speed/pitch/voice_typeごとに音声合成結果が変化する
+      steps:
+        - "各パラメータを変えて音声合成"
+      expected:
+        - "音声の速度・高さ・声種が変化する"
+    - id: TC_SPEECH_SYNTHESIS_FORMAT
+      description: mp3/wav形式で音声ファイルが生成される
+      steps:
+        - "mp3とwavで音声合成"
+      expected:
+        - "それぞれの形式のファイルが生成される"
+    - id: TC_OCR_CLEANSHOT
+      description: CleanShot APIで画像から日本語テキストが抽出できる
+      steps:
+        - "CleanShot OCRで日本語画像を処理"
+      expected:
+        - "日本語テキストが正確に抽出される"
+    - id: TC_OCR_FAIL
+      description: OCR失敗時にERR_OCR_FAILエラーが返る
+      steps:
+        - "文字が含まれない画像をOCR"
+      expected:
+        - "エラーコード ERR_OCR_FAIL が返る"
+
+  ui:
+    - id: TC_WEB_UI_SUMMARY
+      description: Web UIで要約・音声化ができる
+      steps:
+        - "Web UIでURL/画像/テキストを入力し要約・音声化"
+      expected:
+        - "要約と音声再生UIが表示される"
+    - id: TC_CLI_SUMMARY
+      description: CLIでファイル指定・パラメータ指定で要約・音声化できる
+      steps:
+        - "`aisum --file sample.txt --length 100` を実行"
+      expected:
+        - "終了コード0で要約・音声ファイルが生成される"
+
+  storage:
+    - id: TC_HISTORY_SAVE
+      description: 要約と音声ファイルが履歴として30日間保存される
+      steps:
+        - "要約・音声化を実行"
+      expected:
+        - "履歴一覧に30日間保存されている"
+
+  export:
+    - id: TC_EXPORT_FORMATS
+      description: 要約結果をtxt/pdf/mp3/wavでダウンロードできる
+      steps:
+        - "各フォーマットでエクスポート"
+      expected:
+        - "指定フォーマットのファイルがダウンロードできる"
+
+  non_functional:
+    - id: TC_PERFORMANCE
+      description: 5秒以内に要約と音声ファイルが返る
+      steps:
+        - "200文字の要約とmp3音声をリクエスト"
+      expected:
+        - "5秒以内にレスポンスが返る"
+    - id: TC_CONCURRENCY
+      description: 20リクエスト同時処理で全て成功する
+      steps:
+        - "20件の同時リクエストを送信"
+      expected:
+        - "全て成功し、遅延が5秒以内"
+
+  error_handling:
+    - id: TC_ERR_INVALID_URL
+      description: 無効なURLでERR_INVALID_URLが返る
+    - id: TC_ERR_OCR_FAIL
+      description: OCR失敗でERR_OCR_FAILが返る
+    - id: TC_ERR_TTS_TIMEOUT
+      description: 音声合成タイムアウトでERR_TTS_TIMEOUTが返る 

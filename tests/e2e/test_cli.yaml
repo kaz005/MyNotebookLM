@@ -1,0 +1,12 @@
+- id: TC_CLI_SUMMARY_E2E
+  tags: [e2e, ui, cli, positive]
+  priority: high
+  scenario: CLIでファイル指定・パラメータ指定で要約・音声化（E2E）
+  given:
+    - "aisumコマンドがインストールされている"
+    - "有効なテキストファイル (fixtures/summary.txt)"
+  when:
+    - "aisum --file fixtures/summary.txt --length 100 を実行"
+  then:
+    - "終了コード0で要約・音声ファイルが生成される"
+    - "mp3ファイルがカレントディレクトリに存在する" 

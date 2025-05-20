@@ -1,0 +1,59 @@
+- id: TC_INPUT_URL_VALID
+  tags: [unit, input, positive]
+  priority: high
+  scenario: 有効なHTTPS URLから本文抽出
+  given:
+    - "有効なニュース記事のURL (fixtures/sample_article.html)"
+  when:
+    - "GET /extract?url=file://fixtures/sample_article.html"
+  then:
+    - status_code: 200
+    - "len(body.text) >= 100"
+
+- id: TC_INPUT_URL_INVALID
+  tags: [unit, input, negative]
+  priority: high
+  scenario: 無効なURLでエラー
+  given:
+    - "httpスキームや不正なURL"
+  when:
+    - "GET /extract?url=http://invalid-url"
+  then:
+    - status_code: 400
+    - error_code: ERR_INVALID_URL
+
+- id: TC_INPUT_IMAGE_VALID
+  tags: [unit, input, positive]
+  priority: high
+  scenario: JPEG画像からOCR抽出
+  given:
+    - "5MBの日本語テキストを含むJPEG画像 (fixtures/sample_image.jpg)"
+  when:
+    - "POST /ocr?file=fixtures/sample_image.jpg"
+  then:
+    - status_code: 200
+    - "len(body.text) >= 100"
+
+- id: TC_INPUT_IMAGE_TOO_LARGE
+  tags: [unit, input, negative]
+  priority: medium
+  scenario: 10MB超画像でエラー
+  given:
+    - "11MBのPNG画像 (fixtures/large_image.png)"
+  when:
+    - "POST /ocr?file=fixtures/large_image.png"
+  then:
+    - status_code: 400
+    - error_code: ERR_FILE_TOO_LARGE
+
+- id: TC_INPUT_TEXT_VALID
+  tags: [unit, input, positive]
+  priority: high
+  scenario: 100,000文字以内のテキスト入力
+  given:
+    - "100,000文字のテキスト (fixtures/long_text.txt)"
+  when:
+    - "POST /summarize?text=fixtures/long_text.txt"
+  then:
+    - status_code: 200
+    - "body.summary is not None" 

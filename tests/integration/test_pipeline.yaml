@@ -1,0 +1,15 @@
+- id: TC_PIPELINE_URL_TO_EXPORT
+  tags: [integration, pipeline, positive]
+  priority: high
+  scenario: URL入力から要約・音声化・エクスポートまで一連の流れ
+  given:
+    - "有効なニュース記事のURL (fixtures/sample_article.html)"
+  when:
+    - "GET /extract?url=file://fixtures/sample_article.html"
+    - "POST /summarize?text=<抽出テキスト>"
+    - "POST /tts?text=<要約>"
+    - "GET /export?format=mp3"
+  then:
+    - status_code: 200
+    - "mp3ファイルがダウンロードできる"
+    - "履歴一覧に保存されている" 

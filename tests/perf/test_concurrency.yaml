@@ -1,0 +1,13 @@
+- id: TC_CONCURRENCY
+  tags: [perf, concurrency]
+  priority: high
+  scenario: 20リクエスト同時処理で全て成功
+  load_profile:
+    concurrency: 20
+    duration_sec: 10
+  given:
+    - "200文字の日本語テキスト (fixtures/short_text.txt)"
+  when:
+    - "20件の同時POST /summarize & /tts"
+  then:
+    - "全て成功し、遅延が5秒以内" 

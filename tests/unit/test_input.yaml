@@ -56,4 +56,64 @@
     - "POST /summarize?text=fixtures/long_text.txt"
   then:
     - status_code: 200
-    - "body.summary is not None" 
+    - "body.summary is not None"
+
+- id: TC_INPUT_EMPTY
+  tags: [unit, input, negative, boundary]
+  priority: high
+  scenario: 入力が空文字列の場合のエラー
+  given:
+    - "空文字列"
+  when:
+    - "POST /summarize?text="
+  then:
+    - status_code: 400
+    - error_code: ERR_EMPTY_INPUT
+
+- id: TC_INPUT_MAX_LENGTH_PLUS1
+  tags: [unit, input, negative, boundary]
+  priority: high
+  scenario: 入力が最大長+1文字の場合のエラー
+  given:
+    - "100,001文字のテキスト (fixtures/too_long_text.txt)"
+  when:
+    - "POST /summarize?text=fixtures/too_long_text.txt"
+  then:
+    - status_code: 400
+    - error_code: ERR_INPUT_TOO_LONG
+
+- id: TC_INPUT_UNSUPPORTED_IMAGE_FORMAT
+  tags: [unit, input, negative]
+  priority: medium
+  scenario: 未対応画像形式（TIFF）でエラー
+  given:
+    - "TIFF画像 (fixtures/sample_image.tiff)"
+  when:
+    - "POST /ocr?file=fixtures/sample_image.tiff"
+  then:
+    - status_code: 400
+    - error_code: ERR_UNSUPPORTED_FORMAT
+
+- id: TC_INPUT_NONE
+  tags: [unit, input, negative]
+  priority: high
+  scenario: 入力がNoneの場合のエラー
+  given:
+    - "None"
+  when:
+    - "POST /summarize?text=None"
+  then:
+    - status_code: 400
+    - error_code: ERR_EMPTY_INPUT
+
+- id: TC_INPUT_MISSING_PARAM
+  tags: [unit, input, negative]
+  priority: medium
+  scenario: 必須パラメータ欠落時のエラー
+  given:
+    - "textパラメータ未指定"
+  when:
+    - "POST /summarize"
+  then:
+    - status_code: 400
+    - error_code: ERR_MISSING_PARAM 

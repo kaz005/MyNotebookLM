@@ -23,6 +23,8 @@ def extract_text_from_url(url):
 def extract_text_from_image(image_path):
     img = Image.open(image_path)
     text = pytesseract.image_to_string(img, lang='jpn+eng')
+    if not text.strip():
+        return "[エラー] 画像からテキストが取得できませんでした。"
     return text
 
 def extract_article_text(input_path):

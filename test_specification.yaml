@@ -171,8 +171,9 @@ test_specification:
   type: unit/integration
   steps:
     - USE_DUMMY_API=trueでダミーAPIが呼ばれること
-    - USE_DUMMY_API=falseで本番APIが呼ばれること
-    - config.yamlでai.use_dummy_api: true/falseも同様に切替可能
+    - USE_DUMMY_API=false, SUMMARIZER_ENGINE=geminiでGemini APIが呼ばれること
+    - USE_DUMMY_API=false, SUMMARIZER_ENGINE=openaiでOpenAI GPT-4.1-nano APIが呼ばれること
+    - config.yamlでai.use_dummy_api: true/falseやai.summarizer_engine: gemini/openaiも同様に切替可能
   expected: 切替状態でsummarizerの挙動が変わる
 
 - id: TC-ERR-01
@@ -256,4 +257,35 @@ test_specification:
     - push/pull_request/cronでCIが自動実行
     - カバレッジ85%以上
     - 失敗時にSlack通知
-  expected: すべて自動化・通知される 
+  expected: すべて自動化・通知される
+
+- id: TC-SUM-01
+  title: Gemini API未使用時のダミー要約
+  type: unit
+  steps:
+    - USE_DUMMY_API=trueでsummarizer.summarize_article()を呼ぶ
+  expected: ダミー要約（例：「[要約ダミー] ...」）が返る
+
+- id: TC-TTS-01
+  title: TTSパラメータ制御（速度・ピッチ・声種）
+  type: unit
+  steps:
+    - tts.synthesize_speech(text, speed=1.2, pitch=2, voice_type="male")を呼ぶ
+    - tts.synthesize_speech(text, speed=0.8, pitch=-2, voice_type="female")を呼ぶ
+  expected: パラメータごとに異なる音声ファイルが生成される
+
+- id: TC-EXPORT-02
+  title: 多様な出力形式（WAV/PDF/TXT）
+  type: integration
+  steps:
+    - 各フォーマット（wav/pdf/txt）でエクスポートを実行
+  expected: 指定フォーマットのファイルが生成される
+
+- id: TC-HISTORY-02
+  title: 履歴・メタデータ管理（保存・30日超の自動削除・容量制限・タグ削除）
+  type: integration
+  steps:
+    - 履歴を保存し、30日超のデータが自動削除されるか確認
+    - 容量上限を超えた場合に古い履歴が削除されるか確認
+    - タグ指定で履歴削除ができるか確認
+  expected: 古い/容量超過/タグ指定の履歴が自動削除される 

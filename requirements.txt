@@ -6,4 +6,7 @@ beautifulsoup4
 readability-lxml
 pillow
 pytesseract
-streamlit 
+streamlit
+openai
+google-cloud-texttospeech
+python-dotenv 

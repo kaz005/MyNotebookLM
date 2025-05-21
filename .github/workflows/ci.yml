@@ -40,6 +40,9 @@ jobs:
         if: github.event_name == 'schedule'
         env:
           USE_DUMMY_API: false
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         run: pytest tests/e2e
 
       - name: Upload coverage report

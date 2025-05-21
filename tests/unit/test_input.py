@@ -1,6 +1,6 @@
 import pytest
-import summarizer
-import extractor
+from notebooklm import summarizer
+from notebooklm import extractor
 
 # 正常系: 有効なニュース記事のURL
 # ここではextract_article_textがファイルパスを受け取れる前提でテスト

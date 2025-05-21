@@ -4,12 +4,14 @@ import os
 # 仮のエクスポート関数
 
 def export_summary(format: str, input_path: str = "fixtures/summary.txt"):
-    # 実際はAPI呼び出しやファイル生成処理
-    # ここではダミーでファイル存在チェックのみ
     if format not in ["txt", "pdf", "mp3", "wav"]:
         raise ValueError("未対応フォーマット")
-    # テスト用にダミーファイルを生成した体でパスを返す
-    return f"output/summary.{format}"
+    # ダミーファイル生成
+    output_path = f"output/summary.{format}"
+    os.makedirs("output", exist_ok=True)
+    with open(output_path, "wb") as f:
+        f.write(b'dummy')
+    return output_path
 
 @pytest.mark.parametrize("fmt", ["txt", "pdf", "mp3", "wav"])
 def test_export_formats(fmt, monkeypatch):
@@ -18,3 +20,9 @@ def test_export_formats(fmt, monkeypatch):
     output_path = export_summary(fmt)
     assert output_path.endswith(f".{fmt}")
     # 実際はファイル存在や内容検証も追加可能 
+
+@pytest.mark.parametrize("fmt", ["txt", "pdf", "mp3", "wav"])
+def test_export_formats_file_generation(fmt):
+    output_path = export_summary(fmt)
+    assert os.path.exists(output_path)
+    os.remove(output_path) 

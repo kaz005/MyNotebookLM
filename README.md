@@ -64,6 +64,17 @@ StreamlitによるWebアプリと、コマンドライン（CLI）両方で利�
 ## セットアップガイド
 
 - 詳細なセットアップ手順（Tesseract/Gemini API等）は `docs/setup_guide.md` を参照してください。
+- **APIキー・各種設定は `.env` ファイルで管理します（git管理しません）**
+- サンプルとして `.env.sample` を同梱しています。必要に応じてコピー・編集してください。
+
+### .env.sample の内容例
+```env
+OPENAI_API_KEY=sk-xxxxxxx
+GOOGLE_API_KEY=your-gemini-api-key
+SUMMARIZER_ENGINE=openai  # openai/gemini/dummy
+USE_DUMMY_API=false
+TTS_ENGINE=gtts  # gtts/google_cloud
+```
 
 ---
 
@@ -81,9 +92,8 @@ pip install -r requirements.txt
 - Ubuntu: `sudo apt-get install tesseract-ocr`
 - Windows: [公式インストーラ](https://github.com/tesseract-ocr/tesseract)
 
-#### Google Gemini APIキー取得
-- [Google AI Studio](https://aistudio.google.com/app/apikey) でAPIキーを発行
-- `config.yaml` の `gemini_api_key` に設定
+#### .envファイルの作成
+- `.env.sample` をコピーして `.env` を作成し、APIキー等を記入
 
 ### 2. Webアプリとして起動
 ```bash
@@ -94,7 +104,22 @@ streamlit run app.py
 ```bash
 python main.py <URLまたは画像ファイルパスまたはテキスト>
 ```
-※将来的に `aisum` コマンドも提供予定です。
+
+---
+
+## 主な機能
+- ビジネス風の高コントラストUI（ダーク/ライト両対応）
+- Web記事・画像・テキストのAI要約＆日本語音声化
+- 履歴はSQLite DB（notebooklm_history.db）に自動保存
+- .envでAPIキー・エンジン切替を一元管理
+- .envはgit管理せず、.env.sampleを利用
+
+---
+
+## 注意事項
+- 入力内容は一時的にのみ処理され、サーバーに保存されません（履歴DBはローカルのみ）
+- 個人情報・機密情報の入力はご注意ください
+- .envファイルは絶対にgitにコミットしないでください
 
 ---
 
@@ -117,14 +142,6 @@ python main.py <URLまたは画像ファイルパスまたはテキスト>
 - pillow
 - pytesseract
 - streamlit
-
----
-
-## 注意事項
-
-- Gemini APIの利用にはAPIキーが必要です。
-- 画像からの日本語テキスト抽出にはTesseract OCRが必要です（環境によっては別途インストールが必要）。
-- 音声合成はgTTS（Google Text-to-Speech）を利用しています。
 
 ---
 
@@ -182,5 +199,39 @@ MIT License
 - PDF/WAV等の多様な出力フォーマット
 - CLIコマンド`aisum`の提供
 - 本番運用向けセキュリティ・可用性・アクセシビリティ強化
+
+---
+
+## 仮想環境・APIキー・E2E/CI/CD運用手順
+
+### 1. 仮想環境の作成・有効化
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2. APIキー・認証情報の設定
+- `.env` または環境変数で以下を設定
+  - `OPENAI_API_KEY` : OpenAI GPT-4.1-nano用
+  - `GOOGLE_API_KEY` : Gemini API用
+  - `GOOGLE_APPLICATION_CREDENTIALS` : Google Cloud TTS用サービスアカウントJSONパス
+- 例：
+```env
+OPENAI_API_KEY=sk-...
+GOOGLE_API_KEY=AIza...
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/service-account.json
+```
+
+### 3. APIスイッチ・本番/ダミー切替
+- 要約API: `SUMMARIZER_ENGINE=openai|gemini|dummy`、`USE_DUMMY_API=true|false`
+- TTS: `TTS_ENGINE=gtts|google_cloud`
+- DB: `NOTEBOOKLM_DB_PATH=...` でDBファイル切替
+
+### 4. E2E/CI/CD運用
+- GitHub Actionsで自動テスト・E2E・カバレッジ・Slack通知
+- 本番API用secrets例：
+  - `OPENAI_API_KEY`、`GOOGLE_API_KEY`、`GOOGLE_APPLICATION_CREDENTIALS` をGitHubリポジトリのSecretsに登録
+- cron実行時は本番APIでE2Eテスト、push/PR時はダミーAPIで安全に検証
 
 --- 

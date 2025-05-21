@@ -41,14 +41,14 @@ functional_requirements:
         default: gTTS
         options: ["gTTS", "VOICEVOX", "GoogleCloudTTS"]
     ocr:
-      description: CleanShot API による OCR 処理
+      description: Tesseract OCR による画像テキスト抽出
       output: extracted_text
 
   ui:
     web_app:
       description: ブラウザベースの SPA
     cli:
-      description: `aisum` コマンドによる操作
+      description: `python main.py` での操作（将来的に `aisum` コマンド提供予定）
 
   storage:
     history:

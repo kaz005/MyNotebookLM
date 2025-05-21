@@ -1,3 +1,46 @@
+# 想定環境: CLI（python main.py）/ Web UI（streamlit）
+# APIは現状未提供。CLIコマンドはpython main.pyを基準とし、aisumは将来提供予定。
+
+# テスト分類: unit / integration / e2e / security / ci
+
+# 境界値・異常系テスト追加
+- id: TC-BOUNDARY-01
+  title: テキスト100,000文字ちょうどの正常処理
+  type: unit
+  steps:
+    - 100,000文字のテキストを入力
+  expected: 正常に要約・音声化される
+
+- id: TC-BOUNDARY-02
+  title: 画像10MBちょうどの正常処理
+  type: integration
+  steps:
+    - 10MBのJPEG画像をアップロード
+  expected: 正常にOCR・要約される
+
+- id: TC-BOUNDARY-03
+  title: 非HTTPS URLのエラー
+  type: unit
+  steps:
+    - httpスキームのURLを入力
+  expected: ERR_INVALID_URLが返る
+
+- id: TC-BOUNDARY-04
+  title: TIFF画像のエラー
+  type: unit
+  steps:
+    - TIFF画像をアップロード
+  expected: ERR_UNSUPPORTED_FORMATが返る
+
+# 既存テストもunit/integration/e2e分類を明記（例示）
+- id: TC_INPUT_URL_VALID
+  type: unit
+  description: 有効なHTTPS URLを入力した場合、本文テキストが正しく抽出される
+  steps:
+    - 有効なニュース記事のURLを入力
+  expected:
+    - 本文テキストが抽出され、100文字以上である
+
 test_specification:
   input:
     - id: TC_INPUT_URL_VALID

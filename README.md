@@ -36,27 +36,65 @@ StreamlitによるWebアプリと、コマンドライン（CLI）両方で利�
 
 ---
 
+## 入力条件・制限事項
+
+| 入力種別 | 制限内容 |
+|----------|------------------------------------------------------|
+| URL      | httpsのみ対応・本文最大10万文字・無効URLはエラー      |
+| 画像     | png/jpg/jpeg/webp・最大10MB・TIFF等は未対応           |
+| テキスト | 最大100,000文字・空文字/Noneはエラー                 |
+
+---
+
+## エラーコード一覧・トラブルシューティング
+
+| エラーコード         | 主な原因                       | 対処法                         |
+|---------------------|-------------------------------|--------------------------------|
+| ERR_INVALID_URL     | URL形式不正/非https            | 入力URLを確認                  |
+| ERR_OCR_FAIL        | 画像に文字がない/解析失敗      | 画像内容・形式を確認           |
+| ERR_TTS_TIMEOUT     | 音声合成APIタイムアウト         | 再試行・ネットワーク確認        |
+| ERR_INPUT_TOO_LONG  | 入力が最大長超過               | 入力を短くする                  |
+| ERR_EMPTY_INPUT     | 入力が空/None                  | 有効な値を入力                  |
+| ERR_UNSUPPORTED_FORMAT | 未対応画像/ファイル形式      | png/jpg/jpeg/webpのみ対応       |
+| ERR_PDF_GENERATION  | PDF出力時のフォント等の失敗    | サーバ側フォント設定を確認      |
+| ERR_STORAGE_FULL    | 履歴DB容量超過                 | 古い履歴削除・容量拡張          |
+
+---
+
+## セットアップガイド
+
+- 詳細なセットアップ手順（Tesseract/Gemini API等）は `docs/setup_guide.md` を参照してください。
+
+---
+
 ## 使い方
 
 ### 1. セットアップ
 
+#### Python依存パッケージ
 ```bash
 pip install -r requirements.txt
 ```
 
-- `config.yaml` の `gemini_api_key` にご自身のAPIキーを設定してください。
+#### Tesseract OCRのインストール
+- macOS: `brew install tesseract`
+- Ubuntu: `sudo apt-get install tesseract-ocr`
+- Windows: [公式インストーラ](https://github.com/tesseract-ocr/tesseract)
+
+#### Google Gemini APIキー取得
+- [Google AI Studio](https://aistudio.google.com/app/apikey) でAPIキーを発行
+- `config.yaml` の `gemini_api_key` に設定
 
 ### 2. Webアプリとして起動
-
 ```bash
 streamlit run app.py
 ```
 
 ### 3. CLIとして利用
-
 ```bash
 python main.py <URLまたは画像ファイルパスまたはテキスト>
 ```
+※将来的に `aisum` コマンドも提供予定です。
 
 ---
 
@@ -134,4 +172,15 @@ MIT License
 ## ドキュメント・設計方針
 
 - 詳細な設計・運用ルールは`docs/`配下（例：`docs/accessibility.md`, `docs/security.md`, `docs/monitoring.md`）やADR（`docs/adr/0001-api-switch.md`）に記載しています。
-- CI/CD・E2E・監視設定例は`.github/workflows/`や`docs/monitoring.md`を参照してください。 
+- CI/CD・E2E・監視設定例は`.github/workflows/`や`docs/monitoring.md`を参照してください。
+
+---
+
+## 未実装機能・今後のロードマップ
+- Gemini API連携による本格要約（現状はダミー）
+- 履歴保存・自動削除機能の強化
+- PDF/WAV等の多様な出力フォーマット
+- CLIコマンド`aisum`の提供
+- 本番運用向けセキュリティ・可用性・アクセシビリティ強化
+
+--- 

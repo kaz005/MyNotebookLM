@@ -93,18 +93,6 @@ test_specification:
         - "各パラメータを変えて音声合成"
       expected:
         - "音声の速度・高さ・声種が変化する"
-    - id: TC_SPEECH_SYNTHESIS_FORMAT
-      description: mp3/wav形式で音声ファイルが生成される
-      steps:
-        - "mp3とwavで音声合成"
-      expected:
-        - "それぞれの形式のファイルが生成される"
-    - id: TC_OCR_CLEANSHOT
-      description: CleanShot APIで画像から日本語テキストが抽出できる
-      steps:
-        - "CleanShot OCRで日本語画像を処理"
-      expected:
-        - "日本語テキストが正確に抽出される"
     - id: TC_OCR_FAIL
       description: OCR失敗時にERR_OCR_FAILエラーが返る
       steps:
@@ -122,25 +110,25 @@ test_specification:
     - id: TC_CLI_SUMMARY
       description: CLIでファイル指定・パラメータ指定で要約・音声化できる
       steps:
-        - "`aisum --file sample.txt --length 100` を実行"
+        - "python main.py sample.txt --length 100 を実行"
       expected:
         - "終了コード0で要約・音声ファイルが生成される"
 
   storage:
-    - id: TC_HISTORY_SAVE
-      description: 要約と音声ファイルが履歴として30日間保存される
-      steps:
-        - "要約・音声化を実行"
-      expected:
-        - "履歴一覧に30日間保存されている"
+    # - id: TC_HISTORY_SAVE
+    #   description: 要約と音声ファイルが履歴として30日間保存される
+    #   steps:
+    #     - "要約・音声化を実行"
+    #   expected:
+    #     - "履歴一覧に30日間保存されている"
 
   export:
-    - id: TC_EXPORT_FORMATS
-      description: 要約結果をtxt/pdf/mp3/wavでダウンロードできる
-      steps:
-        - "各フォーマットでエクスポート"
-      expected:
-        - "指定フォーマットのファイルがダウンロードできる"
+    # - id: TC_EXPORT_FORMATS
+    #   description: 要約結果をtxt/pdf/mp3/wavでダウンロードできる
+    #   steps:
+    #     - "各フォーマットでエクスポート"
+    #   expected:
+    #     - "指定フォーマットのファイルがダウンロードできる"
 
   non_functional:
     - id: TC_PERFORMANCE
@@ -166,15 +154,15 @@ test_specification:
 
 # 追加テスト仕様書
 
-- id: TC-API-01
-  title: APIスイッチ機構（ダミー⇄本番）
-  type: unit/integration
-  steps:
-    - USE_DUMMY_API=trueでダミーAPIが呼ばれること
-    - USE_DUMMY_API=false, SUMMARIZER_ENGINE=geminiでGemini APIが呼ばれること
-    - USE_DUMMY_API=false, SUMMARIZER_ENGINE=openaiでOpenAI GPT-4.1-nano APIが呼ばれること
-    - config.yamlでai.use_dummy_api: true/falseやai.summarizer_engine: gemini/openaiも同様に切替可能
-  expected: 切替状態でsummarizerの挙動が変わる
+# - id: TC-API-01
+#   title: APIスイッチ機構（ダミー⇄本番）
+#   type: unit/integration
+#   steps:
+#     - USE_DUMMY_API=trueでダミーAPIが呼ばれること
+#     - USE_DUMMY_API=false, SUMMARIZER_ENGINE=geminiでGemini APIが呼ばれること
+#     - USE_DUMMY_API=false, SUMMARIZER_ENGINE=openaiでOpenAI GPT-4.1-nano APIが呼ばれること
+#     - config.yamlでai.use_dummy_api: true/falseやai.summarizer_engine: gemini/openaiも同様に切替可能
+#   expected: 切替状態でsummarizerの挙動が変わる
 
 - id: TC-ERR-01
   title: 入力長超過時のエラー

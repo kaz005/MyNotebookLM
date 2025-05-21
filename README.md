@@ -14,7 +14,8 @@ StreamlitによるWebアプリと、コマンドライン（CLI）両方で利�
   - 画像ファイル（日本語OCR対応）  
   - 直接テキスト入力
 - **AIによる要約・解説**  
-  - Gemini API（Google Generative AI）を利用した日本語要約・解説生成
+  - OpenAI GPT-4.1-nano（現状の主機能）による日本語要約・解説生成  
+  - Gemini API（Google Generative AI）は将来対応予定
 - **日本語音声合成**  
   - gTTS（Google Text-to-Speech）による音声ファイル（mp3）生成
 - **WebアプリUI**  
@@ -29,9 +30,9 @@ StreamlitによるWebアプリと、コマンドライン（CLI）両方で利�
 - `app.py` : Streamlit Webアプリ本体
 - `main.py` : CLI用エントリポイント
 - `extractor.py` : 入力（URL/画像/テキスト）から本文抽出
-- `summarizer.py` : Gemini APIによる要約・解説生成
-- `tts.py` : gTTSによる音声合成
-- `config.yaml` : APIキーやプロンプト等の設定ファイル
+- `summarizer.py` : OpenAI GPT-4.1-nanoによる要約・解説生成（Gemini APIは未実装）
+- `tts.py` : gTTSまたはGoogle Cloud TTSによる音声合成
+- `config.yaml` : サンプル設定ファイル（詳細はconfig.sample.yaml参照）
 - `requirements.txt` : 必要なPythonパッケージ一覧
 
 ---
@@ -66,6 +67,7 @@ StreamlitによるWebアプリと、コマンドライン（CLI）両方で利�
 - 詳細なセットアップ手順（Tesseract/Gemini API等）は `docs/setup_guide.md` を参照してください。
 - **APIキー・各種設定は `.env` ファイルで管理します（git管理しません）**
 - サンプルとして `.env.sample` を同梱しています。必要に応じてコピー・編集してください。
+- `config.yaml` はサンプルとして `config.sample.yaml` を参照してください。
 
 ### .env.sample の内容例
 ```env
@@ -125,15 +127,19 @@ python main.py <URLまたは画像ファイルパスまたはテキスト>
 
 ## 設定ファイル（config.yaml）
 
-- `ai.gemini_api_key` : Gemini APIのAPIキー
-- `ai.summarization_prompt` : 要約・解説のプロンプト
+- サンプル: `config.sample.yaml` を参照
+- `ai.openai_api_key` : OpenAI APIのAPIキー
+- `ai.summarizer_engine` : "openai"（現状対応）/"gemini"（将来対応）
+- `tts.engine` : "gtts" または "google_cloud"
 - `tts.lang` : 音声合成言語（デフォルト: ja）
 
 ---
 
 ## 依存ライブラリ
 
-- google-generativeai
+- openai
+- google-cloud-texttospeech
+- python-dotenv
 - requests
 - gtts
 - PyYAML
@@ -194,11 +200,12 @@ MIT License
 ---
 
 ## 未実装機能・今後のロードマップ
-- Gemini API連携による本格要約（現状はダミー）
-- 履歴保存・自動削除機能の強化
+- Gemini API連携による本格要約（現状は未実装）
+- CleanShot OCR連携
+- VOICEVOX等のTTSエンジン追加
 - PDF/WAV等の多様な出力フォーマット
 - CLIコマンド`aisum`の提供
-- 本番運用向けセキュリティ・可用性・アクセシビリティ強化
+- 履歴保存・自動削除機能の強化
 
 ---
 

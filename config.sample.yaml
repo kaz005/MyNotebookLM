@@ -1,0 +1,8 @@
+ai:
+  openai_api_key: "sk-xxxxxxx"  # OpenAI APIキーをここに記載
+  summarizer_engine: "openai"    # "openai"（現状対応）/ "gemini"（将来対応）
+  # gemini_api_key: "your-gemini-api-key"  # Gemini APIキー（未実装の場合は不要）
+
+tts:
+  engine: "gtts"    # "gtts" または "google_cloud"
+  lang: "ja"        # 音声合成言語（デフォルト: ja） 

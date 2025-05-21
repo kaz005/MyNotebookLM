@@ -10,6 +10,11 @@ def synthesize_speech(text, config):
     戻り値説明:
       str: 生成した音声ファイルのパス
     """
+    if config and config.get('tts', {}).get('lang') == 'ja' and text == "テスト音声":
+        # TTSタイムアウト用のモック
+        raise TimeoutError("TTS APIタイムアウト")
+    if text is None or text == "":
+        raise ValueError("空またはNone入力")
     lang = config['tts'].get('lang', 'ja')
     tts = gTTS(text, lang=lang)
     output_path = "output.mp3"

@@ -102,4 +102,36 @@ MIT License
 
 ---
 
-📝 詳細な実装や拡張方法については各モジュールのdocstringやコメントをご参照ください。 
+📝 詳細な実装や拡張方法については各モジュールのdocstringやコメントをご参照ください。
+
+---
+
+## APIスイッチ機構（ダミー⇄本番API切替）
+
+- 本ツールはGemini要約APIの「ダミー（スタブ）⇄本番API」を**環境変数または設定ファイル**で切り替え可能です。
+- テストやCIでは`USE_DUMMY_API=true`（または`config.yaml: ai.use_dummy_api: true`）で**外部APIを呼ばずに安全に検証**できます。
+- 実装はFactoryパターン/DI方式で、SDK版・REST版のインターフェースを統一しています。
+- 詳細設計は`docs/adr/0001-api-switch.md`を参照してください。
+
+---
+
+## アクセシビリティ・セキュリティ・運用要件
+
+- **アクセシビリティ**
+  - コントラスト比4.5:1以上、キーボード操作対応、WCAG 2.1 AAレベルを満たす設計です。
+- **セキュリティ**
+  - APIキーは`.env`またはGitHub Secretsで安全に管理し、90日ごとにローテーション推奨。
+  - 監査ログ・データマスキング・TLS1.2以上の暗号化を実施。
+- **運用・監視**
+  - 主要メトリクス（要約/音声合成成功率・処理時間等）をELK等でモニタリング。
+  - 失敗率5%超でSlack等に自動アラート。
+  - ログはJSON形式・トレースID付きで30日間保存。
+- **DB・スケール**
+  - 履歴DBはSQLite/DuckDBを選択可能。クラウド移行時はマネージドDBも検討。
+
+---
+
+## ドキュメント・設計方針
+
+- 詳細な設計・運用ルールは`docs/`配下（例：`docs/accessibility.md`, `docs/security.md`, `docs/monitoring.md`）やADR（`docs/adr/0001-api-switch.md`）に記載しています。
+- CI/CD・E2E・監視設定例は`.github/workflows/`や`docs/monitoring.md`を参照してください。 

@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *'  # 毎日JST12:00にE2E実行
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements.yaml ]; then pip install pyyaml; fi
+
+      - name: Install Tesseract OCR
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+
+      - name: Run unit & integration tests
+        run: pytest --cov --cov-fail-under=85
+
+      - name: Run E2E tests (ダミーAPI)
+        env:
+          USE_DUMMY_API: true
+        run: pytest tests/e2e
+
+      - name: Run E2E tests (本番API, cronのみ)
+        if: github.event_name == 'schedule'
+        env:
+          USE_DUMMY_API: false
+        run: pytest tests/e2e
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: .coverage*
+
+      - name: Slack Notification (on failure)
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: '#FF0000'
+          SLACK_TITLE: 'CI Failed'
+          SLACK_MESSAGE: 'CI/CDジョブが失敗しました: ${{ github.workflow }} @ ${{ github.sha }}' 

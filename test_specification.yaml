@@ -119,4 +119,98 @@ test_specification:
     - id: TC_ERR_OCR_FAIL
       description: OCR失敗でERR_OCR_FAILが返る
     - id: TC_ERR_TTS_TIMEOUT
-      description: 音声合成タイムアウトでERR_TTS_TIMEOUTが返る 
+      description: 音声合成タイムアウトでERR_TTS_TIMEOUTが返る
+
+# 追加テスト仕様書
+
+- id: TC-API-01
+  title: APIスイッチ機構（ダミー⇄本番）
+  type: unit/integration
+  steps:
+    - USE_DUMMY_API=trueでダミーAPIが呼ばれること
+    - USE_DUMMY_API=falseで本番APIが呼ばれること
+    - config.yamlでai.use_dummy_api: true/falseも同様に切替可能
+  expected: 切替状態でsummarizerの挙動が変わる
+
+- id: TC-ERR-01
+  title: 入力長超過時のエラー
+  type: unit
+  steps:
+    - 最大長+1のテキストを入力
+  expected: ERR_INPUT_TOO_LONGが返る
+
+- id: TC-ERR-02
+  title: 空入力時のエラー
+  type: unit
+  steps:
+    - 空文字列/Noneを入力
+  expected: ERR_EMPTY_INPUTが返る
+
+- id: TC-ERR-03
+  title: 未対応画像形式のエラー
+  type: unit
+  steps:
+    - TIFF画像を入力
+  expected: ERR_UNSUPPORTED_FORMATが返る
+
+- id: TC-ERR-04
+  title: PDF生成失敗時のエラー
+  type: integration
+  steps:
+    - フォント未埋込環境でPDF出力
+  expected: ERR_PDF_GENERATIONが返る
+
+- id: TC-ERR-05
+  title: ストレージ容量超過時のエラー
+  type: integration
+  steps:
+    - 履歴DB容量上限を超えるファイルを保存
+  expected: ERR_STORAGE_FULLが返る
+
+- id: TC-DB-01
+  title: 履歴DBの自動削除
+  type: integration
+  steps:
+    - 31日以上前の履歴を保存
+    - タグ指定で履歴削除
+    - 容量超過時の自動削除
+  expected: 古い/指定/容量超過分が自動削除される
+
+- id: TC-PDF-01
+  title: PDF出力時のXSSサニタイズ
+  type: integration
+  steps:
+    - <script>タグを含むテキストでPDF出力
+  expected: PDF内にスクリプトが埋め込まれない
+
+- id: TC-LOG-01
+  title: 監査ログの記録
+  type: integration
+  steps:
+    - 主要操作・エラー発生時にログ出力
+  expected: JSON形式・トレースID付きで30日保存
+
+- id: TC-ACC-01
+  title: アクセシビリティ（コントラスト・キーボード操作）
+  type: e2e
+  steps:
+    - 主要画面でaxe/Lighthouse自動テスト
+    - Tab/Enter/Spaceで全機能操作
+  expected: コントラスト比4.5:1以上・全機能キーボード操作可
+
+- id: TC-SEC-01
+  title: APIキー・シークレット管理
+  type: security
+  steps:
+    - .env/Secrets以外にAPIキーが含まれないことを確認
+    - 90日ごとにローテーション
+  expected: コード・ログ・リポジトリにAPIキーが含まれない
+
+- id: TC-CI-01
+  title: CI/CD自動テスト・アラート
+  type: ci
+  steps:
+    - push/pull_request/cronでCIが自動実行
+    - カバレッジ85%以上
+    - 失敗時にSlack通知
+  expected: すべて自動化・通知される 

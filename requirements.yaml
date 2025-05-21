@@ -26,6 +26,9 @@ functional_requirements:
       parameters:
         length: [50, 100, 200, 400]       # 文字数プリセット
         detail_level: ["gist", "standard", "detailed"]
+      api_switch:
+        description: ダミー⇄本番APIを環境変数またはDIで切替可能
+        default: dummy
     speech_synthesis:
       description: 要約結果を日本語音声に変換する
       parameters:
@@ -33,6 +36,10 @@ functional_requirements:
         pitch: [-2, 0, 2]                 # 半音単位
         voice_type: ["female", "male", "child"]
       output_format: ["mp3", "wav"]
+      engine_plugin:
+        description: TTSエンジンはプラグイン方式で差し替え可能
+        default: gTTS
+        options: ["gTTS", "VOICEVOX", "GoogleCloudTTS"]
     ocr:
       description: CleanShot API による OCR 処理
       output: extracted_text
@@ -46,11 +53,15 @@ functional_requirements:
   storage:
     history:
       description: 要約と音声ファイルをユーザー毎に保存
+      metadata_backend: ["sqlite", "duckdb"]
       retention_days: 30
+      tag_delete: true
+      capacity_limit_mb: 500
 
   export:
     description: 要約結果をダウンロード可能
     formats: ["txt", "pdf", "mp3", "wav"]
+    pdf_xss_sanitize: true
 
 non_functional_requirements:
   performance:
@@ -61,8 +72,27 @@ non_functional_requirements:
   security:
     encryption_in_transit: tls1.2_plus
     personal_data_masking: true
+    api_key_management: ["dotenv", "github_secrets"]
+    api_key_rotation_policy: 90d
+    audit_log: true
+    tts_license_notice: true
   accessibility:
     aria_compliant: true
+    contrast_ratio: "4.5:1"
+    keyboard_navigation: true
+    wcag_level: "2.1 AA"
+  ci_cd:
+    github_actions: true
+    triggers: ["push", "pull_request", "schedule_daily"]
+    test_coverage_threshold: 85
+    test_data_fixtures: "tests/fixtures/ (LFS管理)"
+  documentation:
+    readme_local_docker: true
+    changelog_keep_a_changelog: true
+    architecture_decision_record: true
+  db_strategy:
+    backend_options: ["sqlite", "duckdb"]
+    scale_note: "同時アクセスやクラウド移行時はマネージドDB検討"
 
 error_handling:
   - code: ERR_INVALID_URL
@@ -71,6 +101,16 @@ error_handling:
     description: OCR 抽出失敗
   - code: ERR_TTS_TIMEOUT
     description: 音声合成 API タイムアウト
+  - code: ERR_INPUT_TOO_LONG
+    description: 入力が最大長を超過
+  - code: ERR_EMPTY_INPUT
+    description: 入力が空またはNone
+  - code: ERR_UNSUPPORTED_FORMAT
+    description: 未対応の画像/ファイル形式
+  - code: ERR_PDF_GENERATION
+    description: PDF生成失敗（フォント含む）
+  - code: ERR_STORAGE_FULL
+    description: ストレージ容量超過
 
 logging_and_monitoring:
   metrics:
@@ -78,8 +118,41 @@ logging_and_monitoring:
     - tts_success_rate
     - avg_processing_time_sec
   log_level: INFO
+  log_format: json
+  trace_id: true
+  alert_thresholds:
+    summarization_fail_rate: 0.05   # 5%超でアラート
+    tts_fail_rate: 0.05
+  alert_channels:
+    - slack
+  log_retention_days: 30
+  log_storage: elk
 
 acceptance_criteria:
   - description: 有効な URL を入力し、200 文字の要約と mp3 音声が 5 秒以内に返る
   - description: 5 MB の JPEG 画像から OCR → 要約 → 音声生成が成功する
   - description: CLI で `aisum --file sample.txt --length 100` が終了コード 0 で完了
+  - description: APIスイッチ機構でダミー/本番を切替えテストが通る
+  - description: cron E2Eで実APIが毎日正常応答する
+  - description: PDF出力時にXSS/不正スクリプトが除去される
+  - description: 履歴DBで30日超・タグ指定・容量超過時に自動削除される
+
+test_strategy:
+  unit:
+    api: mock_only
+  integration:
+    api: vcrpy_cassette
+  e2e:
+    api: real_request_daily
+    kpi:
+      response_sec: 5
+      success_rate: 100
+
+risk_management:
+  gemini_cost_limit:
+    token_limit: true
+    streaming_summary: true
+  tts_engine_eol:
+    plugin_architecture: true
+  pdf_font_error:
+    font_embed: "Noto Sans"

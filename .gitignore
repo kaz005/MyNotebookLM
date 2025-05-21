@@ -5,6 +5,7 @@ __pycache__/
 *.pyd
 .Python
 env/
+.venv/
 build/
 dist/
 *.egg-info/
@@ -25,10 +26,5 @@ fixtures/*.html
 .env
 
 # その他
-*.log .venv/
-__pycache__/
-*.pyc
-.DS_Store
-.env
+*.log
 notebooklm_history.db
-

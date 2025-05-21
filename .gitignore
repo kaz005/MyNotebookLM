@@ -22,8 +22,13 @@ fixtures/*.txt
 fixtures/*.html
 
 # 機密情報
-config.yaml
 .env
 
 # その他
-*.log 
+*.log .venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+notebooklm_history.db
+
